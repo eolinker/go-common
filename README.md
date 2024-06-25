@@ -1,18 +1,13 @@
 # aoplatform common
-
+# 控制台通用工具包
 package
-
 ```shell
 "github.com/eolinker/go-common"
 ```
 
-控制台通用工具包
-
-
 ## aolabel
-
 定义
-```go
+```golang
 
 type Struct struct{
 
@@ -20,8 +15,8 @@ type Struct struct{
 
 }
 ```
-赋值
-```go
+auto 赋值
+```golang
 
 v:= &Struct{
 Creator: auto.UUID("uuid")
@@ -38,6 +33,11 @@ auto.CompleteLabels(ctx,list...)
 
 注册完成器
 
-```go
+```golang
+import (
+    "github/eolinker/go-common/auto"
+)
+
 auto.RegisterService(name, handler)
 ```
+
