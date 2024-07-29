@@ -3,12 +3,16 @@ package access
 import (
 	"fmt"
 	"strings"
+
+	"github.com/eolinker/eosc/log"
 )
 
 type Access struct {
-	Name  string `yaml:"name" json:"name,omitempty"`
-	CName string `yaml:"cname" json:"cname,omitempty"`
-	Desc  string `yaml:"desc" json:"desc,omitempty"`
+	Name     string   `yaml:"name" json:"name,omitempty"`
+	CName    string   `yaml:"cname" json:"cname,omitempty"`
+	Value    string   `yaml:"value" json:"value,omitempty"`
+	Apis     []string `yaml:"apis" json:"apis,omitempty"`
+	Children []Access `yaml:"children" json:"children,omitempty"`
 }
 
 var (
@@ -36,7 +40,60 @@ func Add(group string, asl []Access) {
 	}
 
 	access[group] = append(access[group], gl...)
+	permits.Set(group, newPermit(group, gl))
 }
+
+func formatAccess(as []Access) (map[string][]string, []Template) {
+	result := map[string][]string{}
+	templates := make([]Template, 0, len(as))
+	for _, a := range as {
+		template := Template{
+			Name:     a.Name,
+			CName:    a.CName,
+			Value:    a.Value,
+			Children: []Template{},
+		}
+		if a.Children != nil {
+			childrenResult, childTemplate := formatAccess(a.Children)
+			for k, v := range childrenResult {
+				result[fmt.Sprintf("%s.%s", a.Value, k)] = v
+			}
+			template.Children = childTemplate
+		} else {
+			result[a.Value] = []string{}
+			if a.Apis != nil {
+				apis := make([]string, 0, len(a.Apis))
+				for _, api := range a.Apis {
+					f, err := formatApi(api)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					apis = append(apis, f)
+				}
+				result[a.Value] = apis
+			}
+		}
+
+		templates = append(templates, template)
+	}
+	return result, templates
+}
+
+func formatApi(api string) (string, error) {
+	index := strings.Index(api, ":")
+	if index < 0 {
+		return "", fmt.Errorf("api %s format error", api)
+	}
+	method := strings.TrimSpace(strings.ToUpper(api[:index]))
+	if method != "GET" && method != "POST" && method != "PUT" && method != "DELETE" {
+		return "", fmt.Errorf("api %s format error", api)
+	}
+	path := strings.TrimSpace(api[index+1:])
+
+	return fmt.Sprintf("%s:%s", method, path), nil
+}
+
 func formatGroup(group string) string {
 	group = strings.ToLower(group)
 	group = strings.TrimSpace(group)
