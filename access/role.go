@@ -10,6 +10,7 @@ type Role struct {
 	Name    string   `yaml:"name" json:"name,omitempty"`
 	CName   string   `yaml:"cname" json:"cname,omitempty"`
 	Permits []string `yaml:"permits" json:"permits,omitempty"`
+	Supper  bool     `yaml:"supper" json:"supper,omitempty"`
 	Default bool     `yaml:"default" json:"default,omitempty"`
 }
 
