@@ -3,21 +3,24 @@ package access
 import (
 	"fmt"
 
+	"github.com/eolinker/go-common/permit"
+
 	"github.com/eolinker/eosc"
 )
 
 var (
-	permits = eosc.BuildUntyped[string, *permit]()
+	permits = eosc.BuildUntyped[string, *permitAccess]()
 )
 
 type Template struct {
-	Name     string     `yaml:"name" json:"name,omitempty"`
-	CName    string     `yaml:"cname" json:"cname,omitempty"`
-	Value    string     `yaml:"value" json:"value,omitempty"`
-	Children []Template `yaml:"children" json:"children,omitempty"`
+	Name       string     `yaml:"name" json:"name,omitempty"`
+	CName      string     `yaml:"cname" json:"cname,omitempty"`
+	Value      string     `yaml:"value" json:"value,omitempty"`
+	Children   []Template `yaml:"children" json:"children,omitempty"`
+	Dependents []string   `yaml:"dependents" json:"dependents,omitempty"`
 }
 
-type permit struct {
+type permitAccess struct {
 	group string
 	// permits 当前权限下的API列表
 	permits eosc.Untyped[string, []string]
@@ -27,8 +30,8 @@ type permit struct {
 	template []Template
 }
 
-func newPermit(group string, access []Access) *permit {
-	p := &permit{
+func newPermit(group string, access []Access) *permitAccess {
+	p := &permitAccess{
 		group:    group,
 		permits:  eosc.BuildUntyped[string, []string](),
 		access:   eosc.BuildUntyped[string, string](),
@@ -38,15 +41,15 @@ func newPermit(group string, access []Access) *permit {
 	return p
 }
 
-func (p *permit) Valid(access string) error {
+func (p *permitAccess) Valid(access string) error {
 	_, has := p.access.Get(access)
 	if !has {
-		return fmt.Errorf("permit %s not found", access)
+		return fmt.Errorf("permitAccess %s not found", access)
 	}
 	return nil
 }
 
-func (p *permit) Add(as []Access) error {
+func (p *permitAccess) Add(as []Access) error {
 	result, templates := formatAccess(as)
 	for k, vs := range result {
 		k = fmt.Sprintf("%s.%s", p.group, k)
@@ -54,27 +57,28 @@ func (p *permit) Add(as []Access) error {
 		for _, v := range vs {
 			p.access.Set(v, k)
 		}
+		permit.AddPermitRule(k, vs...)
 	}
 	p.template = templates
 	return nil
 }
 
-func (p *permit) GetTemplate() []Template {
+func (p *permitAccess) GetTemplate() []Template {
 	return p.template
 }
 
-func (p *permit) GetPermits(access string) ([]string, error) {
+func (p *permitAccess) GetPermits(access string) ([]string, error) {
 	perms, has := p.permits.Get(access)
 	if !has {
-		return nil, fmt.Errorf("permit %s not found", access)
+		return nil, fmt.Errorf("permitAccess %s not found", access)
 	}
 	return perms, nil
 }
 
-func (p *permit) AccessKeys() []string {
+func (p *permitAccess) AccessKeys() []string {
 	return p.permits.Keys()
 }
 
-func GetPermit(group string) (*permit, bool) {
+func GetPermit(group string) (*permitAccess, bool) {
 	return permits.Get(group)
 }

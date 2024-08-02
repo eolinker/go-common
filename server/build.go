@@ -2,13 +2,14 @@ package server
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/eolinker/go-common/pm3"
 	"github.com/eolinker/go-common/register"
 	"github.com/eolinker/go-common/utils"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strings"
 )
 
 var (
@@ -72,7 +73,7 @@ func (i *imlServiceBuilder) Build() Server {
 		}
 		if ai, ok := p.(pm3.IPluginApis); ok {
 			for _, a := range ai.APis() {
-				middlewareHandlers := middlewareList.Check(http.MethodGet, a.Path())
+				middlewareHandlers := middlewareList.Check(a.Method(), a.Path())
 
 				handlers[p.Name()] = append(handlers[p.Name()], a)
 				engine.Group("/", middlewareHandlers...).Handle(a.Method(), a.Path(), a.Handler)
