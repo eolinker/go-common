@@ -10,6 +10,7 @@ import (
 
 const (
 	EnvGuestMode         = "GUEST_MODE"
+	EnvGuestID           = "GUEST_ID"
 	EnvGuestUser         = "GUEST_USER"
 	EnvGuestPassword     = "GUEST_PASSWORD"
 	DefaultGuestUser     = "guest"
@@ -17,7 +18,8 @@ const (
 )
 
 var (
-	userId        = uuid.New().String()
+	defaultUserId = uuid.New().String()
+	userId        string
 	guestAllow    bool
 	guestUser     string
 	guestPassword string
@@ -35,6 +37,10 @@ func init() {
 	guestPassword, ok = env.GetEnv(EnvGuestPassword)
 	if !ok {
 		guestPassword = DefaultGuestPassword
+	}
+	userId, ok = env.GetEnv(EnvGuestID)
+	if !ok {
+		userId = defaultUserId
 	}
 }
 
