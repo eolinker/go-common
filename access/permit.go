@@ -64,7 +64,6 @@ func (p *permitAccess) Add(as []Access) error {
 		if vs.GuestAllow {
 			guestAccess = append(guestAccess, k)
 		}
-		guestAccess = append(guestAccess)
 		permit.AddPermitRule(k, apis...)
 	}
 	p.template = templates
