@@ -25,17 +25,19 @@ type permitAccess struct {
 	// permits 当前权限下的API列表
 	permits eosc.Untyped[string, []string]
 	// access api对应需要的权限
-	access eosc.Untyped[string, string]
+	access      eosc.Untyped[string, string]
+	guestAccess []string
 	// template 模版
 	template []Template
 }
 
 func newPermit(group string, access []Access) *permitAccess {
 	p := &permitAccess{
-		group:    group,
-		permits:  eosc.BuildUntyped[string, []string](),
-		access:   eosc.BuildUntyped[string, string](),
-		template: nil,
+		group:       group,
+		permits:     eosc.BuildUntyped[string, []string](),
+		access:      eosc.BuildUntyped[string, string](),
+		guestAccess: make([]string, 0),
+		template:    nil,
 	}
 	p.Add(access)
 	return p
@@ -51,15 +53,22 @@ func (p *permitAccess) Valid(access string) error {
 
 func (p *permitAccess) Add(as []Access) error {
 	result, templates := formatAccess(as)
+	guestAccess := make([]string, 0)
 	for k, vs := range result {
 		k = fmt.Sprintf("%s.%s", p.group, k)
-		p.permits.Set(k, vs)
-		for _, v := range vs {
+		apis := vs.Apis
+		p.permits.Set(k, apis)
+		for _, v := range apis {
 			p.access.Set(v, k)
 		}
-		permit.AddPermitRule(k, vs...)
+		if vs.GuestAllow {
+			guestAccess = append(guestAccess, k)
+		}
+		guestAccess = append(guestAccess)
+		permit.AddPermitRule(k, apis...)
 	}
 	p.template = templates
+	p.guestAccess = guestAccess
 	return nil
 }
 
@@ -75,10 +84,22 @@ func (p *permitAccess) GetPermits(access string) ([]string, error) {
 	return perms, nil
 }
 
+func (p *permitAccess) GuestAccess() []string {
+	return p.guestAccess
+}
+
 func (p *permitAccess) AccessKeys() []string {
 	return p.permits.Keys()
 }
 
 func GetPermit(group string) (*permitAccess, bool) {
 	return permits.Get(group)
+}
+
+func GuestAccess(group string) []string {
+	p, has := permits.Get(group)
+	if !has {
+		return nil
+	}
+	return p.GuestAccess()
 }

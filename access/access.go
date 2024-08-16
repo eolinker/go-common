@@ -14,6 +14,7 @@ type Access struct {
 	Apis       []string `yaml:"apis" json:"apis,omitempty"`
 	Dependents []string `yaml:"dependents" json:"dependents,omitempty"`
 	Children   []Access `yaml:"children" json:"children,omitempty"`
+	GuestAllow bool     `yaml:"guest_allow" json:"guest_allow,omitempty"`
 }
 
 var (
@@ -44,8 +45,13 @@ func Add(group string, asl []Access) {
 	permits.Set(group, newPermit(group, gl))
 }
 
-func formatAccess(as []Access) (map[string][]string, []Template) {
-	result := map[string][]string{}
+type Detail struct {
+	GuestAllow bool
+	Apis       []string
+}
+
+func formatAccess(as []Access) (map[string]*Detail, []Template) {
+	result := map[string]*Detail{}
 	templates := make([]Template, 0, len(as))
 	for _, a := range as {
 		template := Template{
@@ -62,7 +68,9 @@ func formatAccess(as []Access) (map[string][]string, []Template) {
 			}
 			template.Children = childTemplate
 		} else {
-			result[a.Value] = []string{}
+			result[a.Value] = &Detail{
+				GuestAllow: a.GuestAllow,
+			}
 			if a.Apis != nil {
 				apis := make([]string, 0, len(a.Apis))
 				for _, api := range a.Apis {
@@ -73,7 +81,7 @@ func formatAccess(as []Access) (map[string][]string, []Template) {
 					}
 					apis = append(apis, f)
 				}
-				result[a.Value] = apis
+				result[a.Value].Apis = apis
 			}
 		}
 
