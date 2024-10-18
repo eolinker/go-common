@@ -20,6 +20,21 @@ type Template struct {
 	Dependents []string   `yaml:"dependents" json:"dependents,omitempty"`
 }
 
+func TemplatesClone(temps []Template) []Template {
+	clone := make([]Template, 0, len(temps))
+	for _, temp := range temps {
+		v := Template{
+			Name:       temp.Name,
+			Value:      temp.Value,
+			Dependents: make([]string, len(temp.Dependents)),
+		}
+		copy(v.Dependents, temp.Dependents)
+		v.Children = TemplatesClone(temp.Children)
+		clone = append(clone, v)
+	}
+	return clone
+}
+
 type permitAccess struct {
 	group string
 	// permits 当前权限下的API列表
