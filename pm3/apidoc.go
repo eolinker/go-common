@@ -8,7 +8,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/APIParkLab/APIPark/resources/locale"
 	"github.com/eolinker/go-common/auto"
+	"github.com/eolinker/go-common/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -125,6 +127,7 @@ func (a *apiDoc) Handler() gin.HandlerFunc {
 
 			rv := rs[i]
 			if field != "" {
+				auto.I18nConvert(rv, locale.Get(utils.I18n(context)))
 				value := rv.Interface()
 				auto.CompleteLabels(context, value)
 				resp.Data[field] = value

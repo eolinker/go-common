@@ -32,12 +32,12 @@ func Get(name string) ([]Access, bool) {
 func Add(group string, asl []Access) {
 	gl := make([]Access, 0, len(asl))
 	group = formatGroup(group)
-	gp := fmt.Sprint(group, ".")
+	//gp := fmt.Sprint(group, ".")
 	for _, a := range asl {
 		a.Name = strings.ToLower(a.Name)
-		if !strings.HasPrefix(a.Name, gp) {
-			a.Name = fmt.Sprint(gp, a.Name)
-		}
+		//if !strings.HasPrefix(a.Name, gp) {
+		//	a.Name = fmt.Sprint(gp, a.Name)
+		//}
 		gl = append(gl, a)
 	}
 
@@ -54,9 +54,9 @@ func formatAccess(as []Access) (map[string]*Detail, []Template) {
 	result := map[string]*Detail{}
 	templates := make([]Template, 0, len(as))
 	for _, a := range as {
+
 		template := Template{
 			Name:       a.Name,
-			CName:      a.CName,
 			Value:      a.Value,
 			Dependents: a.Dependents,
 			Children:   []Template{},

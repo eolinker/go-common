@@ -8,6 +8,7 @@ var (
 
 type Role struct {
 	Name       string   `yaml:"name" json:"name,omitempty"`
+	Value      string   `yaml:"value" json:"value,omitempty"`
 	CName      string   `yaml:"cname" json:"cname,omitempty"`
 	Permits    []string `yaml:"permits" json:"permits,omitempty"`
 	Supper     bool     `yaml:"supper" json:"supper,omitempty"`
