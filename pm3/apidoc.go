@@ -129,6 +129,7 @@ func (a *apiDoc) Handler() gin.HandlerFunc {
 			if field != "" {
 				auto.I18nConvert(rv, I18nGet(utils.I18n(context)))
 				value := rv.Interface()
+
 				auto.CompleteLabels(context, value)
 				resp.Data[field] = value
 			}

@@ -75,13 +75,14 @@ func (i *imlServiceBuilder) Build() Server {
 		}
 		if ai, ok := p.(pm3.IPluginApis); ok {
 			for _, a := range ai.APis() {
+				for _, access := range a.Permits() {
+					permit.AddPermitRule(access, permit.FormatPath(a.Method(), a.Path()))
+				}
 				middlewareHandlers := middlewareList.Check(a.Method(), a.Path())
 
 				handlers[p.Name()] = append(handlers[p.Name()], a)
 				engine.Group("/", middlewareHandlers...).Handle(a.Method(), a.Path(), a.Handler)
-				for _, access := range a.Permits() {
-					permit.AddPermitRule(access, permit.FormatPath(a.Method(), a.Path()))
-				}
+
 			}
 		}
 	}
