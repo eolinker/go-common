@@ -6,4 +6,5 @@ type Api interface {
 	Method() string
 	Path() string
 	Handler(*gin.Context)
+	Permits() []string
 }

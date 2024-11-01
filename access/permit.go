@@ -13,8 +13,7 @@ var (
 )
 
 type Template struct {
-	Name string `yaml:"name" json:"name,omitempty" aoi18n:""`
-	//CName      string     `yaml:"cname" json:"cname,omitempty"`
+	Name       string     `yaml:"name" json:"name,omitempty" aoi18n:""`
 	Value      string     `yaml:"value" json:"value,omitempty"`
 	Children   []Template `yaml:"children" json:"children,omitempty"`
 	Dependents []string   `yaml:"dependents" json:"dependents,omitempty"`

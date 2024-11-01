@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/eolinker/go-common/permit"
+
 	"github.com/eolinker/go-common/pm3"
 	"github.com/eolinker/go-common/register"
 	"github.com/eolinker/go-common/utils"
@@ -77,6 +79,9 @@ func (i *imlServiceBuilder) Build() Server {
 
 				handlers[p.Name()] = append(handlers[p.Name()], a)
 				engine.Group("/", middlewareHandlers...).Handle(a.Method(), a.Path(), a.Handler)
+				for _, access := range a.Permits() {
+					permit.AddPermitRule(access, permit.FormatPath(a.Method(), a.Path()))
+				}
 			}
 		}
 	}

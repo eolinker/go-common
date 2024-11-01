@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/APIParkLab/APIPark/resources/locale"
 	"github.com/eolinker/go-common/auto"
 	"github.com/eolinker/go-common/utils"
 
@@ -36,6 +35,7 @@ type IApiError interface {
 type apiDoc struct {
 	Method      string
 	Path        string
+	Permits     []string
 	IN          []string
 	OUT         []string
 	HandlerFunc any
@@ -43,8 +43,8 @@ type apiDoc struct {
 	restfulSet map[string]struct{}
 }
 
-func CreateApiWidthDoc(method string, path string, IN []string, OUT []string, handlerFunc any) Api {
-	return Gen(&apiDoc{Method: method, Path: path, IN: IN, OUT: OUT, HandlerFunc: handlerFunc})
+func CreateApiWidthDoc(method string, path string, IN []string, OUT []string, handlerFunc any, permits ...string) Api {
+	return Gen(&apiDoc{Method: method, Path: path, IN: IN, OUT: OUT, HandlerFunc: handlerFunc, Permits: permits})
 }
 func CreateApiSimple(method string, path string, handler gin.HandlerFunc) Api {
 	return &formApi{
@@ -127,7 +127,7 @@ func (a *apiDoc) Handler() gin.HandlerFunc {
 
 			rv := rs[i]
 			if field != "" {
-				auto.I18nConvert(rv, locale.Get(utils.I18n(context)))
+				auto.I18nConvert(rv, I18nGet(utils.I18n(context)))
 				value := rv.Interface()
 				auto.CompleteLabels(context, value)
 				resp.Data[field] = value

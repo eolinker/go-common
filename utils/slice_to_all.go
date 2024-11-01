@@ -1,17 +1,37 @@
 package utils
 
-func SliceToMap[K comparable, T any](list []T, f func(T) K) map[K]T {
+func SliceToMap[K comparable, T any](list []T, f func(T) K, filter ...func(T) bool) map[K]T {
 	m := make(map[K]T)
-	for _, t := range list {
-		m[f(t)] = t
+	if len(filter) > 0 {
+		filterFunc := filter[0]
+		for _, t := range list {
+			if filterFunc(t) {
+				m[f(t)] = t
+			}
+		}
+	} else {
+		for _, t := range list {
+			m[f(t)] = t
+		}
 	}
+
 	return m
 }
-func SliceToMapO[K comparable, T, D any](list []T, f func(T) (K, D)) map[K]D {
+func SliceToMapO[K comparable, T, D any](list []T, f func(T) (K, D), filter ...func(T) bool) map[K]D {
 	m := make(map[K]D)
-	for _, t := range list {
-		k, v := f(t)
-		m[k] = v
+	if len(filter) > 0 {
+		filterFunc := filter[0]
+		for _, t := range list {
+			if filterFunc(t) {
+				k, v := f(t)
+				m[k] = v
+			}
+		}
+	} else {
+		for _, t := range list {
+			k, v := f(t)
+			m[k] = v
+		}
 	}
 	return m
 }

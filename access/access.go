@@ -3,15 +3,12 @@ package access
 import (
 	"fmt"
 	"strings"
-
-	"github.com/eolinker/eosc/log"
 )
 
 type Access struct {
 	Name       string   `yaml:"name" json:"name,omitempty"`
 	CName      string   `yaml:"cname" json:"cname,omitempty"`
 	Value      string   `yaml:"value" json:"value,omitempty"`
-	Apis       []string `yaml:"apis" json:"apis,omitempty"`
 	Dependents []string `yaml:"dependents" json:"dependents,omitempty"`
 	Children   []Access `yaml:"children" json:"children,omitempty"`
 	GuestAllow bool     `yaml:"guest_allow" json:"guest_allow,omitempty"`
@@ -32,12 +29,8 @@ func Get(name string) ([]Access, bool) {
 func Add(group string, asl []Access) {
 	gl := make([]Access, 0, len(asl))
 	group = formatGroup(group)
-	//gp := fmt.Sprint(group, ".")
 	for _, a := range asl {
 		a.Name = strings.ToLower(a.Name)
-		//if !strings.HasPrefix(a.Name, gp) {
-		//	a.Name = fmt.Sprint(gp, a.Name)
-		//}
 		gl = append(gl, a)
 	}
 
@@ -70,18 +63,6 @@ func formatAccess(as []Access) (map[string]*Detail, []Template) {
 		} else {
 			result[a.Value] = &Detail{
 				GuestAllow: a.GuestAllow,
-			}
-			if a.Apis != nil {
-				apis := make([]string, 0, len(a.Apis))
-				for _, api := range a.Apis {
-					f, err := formatApi(api)
-					if err != nil {
-						log.Error(err)
-						continue
-					}
-					apis = append(apis, f)
-				}
-				result[a.Value].Apis = apis
 			}
 		}
 
