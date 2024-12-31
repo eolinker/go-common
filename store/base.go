@@ -4,6 +4,7 @@ import (
 	"context"
 	"go/ast"
 	"reflect"
+	"strings"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -224,8 +225,10 @@ func (b *Store[T]) ListQuery(ctx context.Context, where string, args []interface
 func (b *Store[T]) First(ctx context.Context, m map[string]interface{}, order ...string) (*T, error) {
 	value := new(T)
 	db := b.DB(ctx)
-
-	err := db.Where(m).First(value).Order(order).Error
+	if len(order) > 0 {
+		db = db.Order(strings.Join(order, ","))
+	}
+	err := db.Where(m).First(value).Error
 	if err != nil {
 		return nil, err
 	}
