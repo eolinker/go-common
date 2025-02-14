@@ -10,7 +10,6 @@ import (
 	"github.com/eolinker/go-common/pm3"
 	"github.com/eolinker/go-common/register"
 	"github.com/eolinker/go-common/utils"
-	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 )
 
@@ -46,7 +45,7 @@ func (i *imlServiceBuilder) Build() Server {
 	}
 
 	handlers := make(map[string][]pm3.Api)
-	engine.Use(gzip.Gzip(gzip.DefaultCompression))
+	//engine.Use(gzip.Gzip(gzip.DefaultCompression))
 	engine.GET("/", indexHtmlHandler)
 
 	middlewareList := make(pm3.MiddlewareList, 0, len(i.pluginAll))

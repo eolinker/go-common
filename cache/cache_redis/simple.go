@@ -2,9 +2,10 @@ package cache_redis
 
 import (
 	"context"
-	"github.com/redis/go-redis/v9"
 	"strings"
 	"time"
+
+	redis "github.com/redis/go-redis/v9"
 )
 
 type Option struct {
