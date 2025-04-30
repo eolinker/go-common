@@ -17,6 +17,9 @@ func (o *Label) Set(operators map[string]string) {
 	if v, has := operators[o.Id]; has {
 		o.Name = v
 	} else {
+		if o.Name != "" {
+			return
+		}
 		o.Name = unknownOperator
 	}
 }
